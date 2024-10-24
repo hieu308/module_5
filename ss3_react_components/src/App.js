@@ -31,7 +31,16 @@ function App() {
       <button onClick={handleAddItem}>Thêm</button>
       <ul>
         {list.map((todo, index) => (
-          <li key={index} style={{ marginTop: "10px", display: "flex" }}>
+          <li
+            key={index}
+            style={{
+              marginLeft: "-5%",
+              marginTop: "10px",
+              display: "flex",
+              width: "27%",
+              justifyContent: "space-between",
+            }}
+          >
             <span>{todo}</span>
             <button
               onClick={() => handleDeleteItem(index)}
