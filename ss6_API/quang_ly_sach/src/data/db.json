@@ -1,0 +1,24 @@
+{
+  "book": [
+    {
+      "nameBook": "jjjj",
+      "quantity": 33,
+      "id": 9
+    },
+    {
+      "nameBook": "324",
+      "quantity": 2,
+      "id": 10
+    },
+    {
+      "nameBook": "xdf",
+      "quantity": 2,
+      "id": 11
+    },
+    {
+      "nameBook": "okop",
+      "quantity": 222,
+      "id": 12
+    }
+  ]
+}
