@@ -10,6 +10,7 @@ function EditBook() {
     const navigate = useNavigate();
     const { id } = useParams(); // Lấy id từ URL
     const [book, setBook] = useState({ nameBook: '', quantity: '' });
+    const [categories, setCategory] = React.useState([]);
 
     useEffect(() => {
         async function fetchBook() {
@@ -20,6 +21,16 @@ function EditBook() {
                 console.log(error);
             }
         }
+        async function getCategories() {
+            try {
+                const response = await axios.get("http://localhost:3010/category");
+                setCategory(response.data);
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        getCategories()
         fetchBook();
     }, [id]);
 
@@ -63,6 +74,22 @@ function EditBook() {
                         onChange={handleChange}
                     />
                 </Form.Group>
+                <Form.Group className="mb-3">
+                    <Form.Label>Thể Loại</Form.Label>
+                    <select
+                        name="category"
+                        className="form-control"
+                        value={book.category}
+                        onChange={handleChange}
+                    >
+                        {categories.map((category) => (
+                            <option key={category.id} value={category.name}>
+                                {category.name}
+                            </option>
+                        ))}
+                    </select>
+                </Form.Group>
+
                 <Button variant="primary" type="submit">
                     Lưu
                 </Button>

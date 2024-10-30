@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect} from "react";
 import axios from "axios";
 import {useNavigate} from "react-router-dom";
-import { Table,Modal , Button,Form } from 'react-bootstrap';
+import {Table, Modal, Button, Form} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {toast} from "react-toastify";
-import { Formik, Field, Form as FormikForm,ErrorMessage } from "formik";
+import {Formik, Field, Form as FormikForm, ErrorMessage} from "formik";
 import * as Yup from "yup"; // Import Yup
 
 function ListBooks() {
@@ -13,7 +13,10 @@ function ListBooks() {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [bookToDelete, setBookToDelete] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
-    const [bookToEdit, setBookToEdit] = useState({ nameBook: "", quantity: "" });
+    const [categories, setCategory] = React.useState([]);
+    const [searchTerm, setSearchTerm] = useState(""); // State cho tìm kiếm
+const [searchCategories, setSearchCategories] = useState("");
+    const [bookToEdit, setBookToEdit] = useState({nameBook: "", quantity: "", category: ""});
     useEffect(() => {
         async function getBooks() {
             try {
@@ -25,6 +28,16 @@ function ListBooks() {
             }
         }
 
+        async function getCategories() {
+            try {
+                const response = await axios.get("http://localhost:3010/category");
+                setCategory(response.data);
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        getCategories()
         getBooks();
     }, []);
     const validationSchema = Yup.object().shape({
@@ -38,9 +51,9 @@ function ListBooks() {
             .required('Số lượng là bắt buộc.')
     });
     const handleEditClick = (book) => {
-        setBookToEdit({ nameBook: book.nameBook, quantity: book.quantity, id: book.id });
-        setShowEditModal(true);
-        // navigate(`/edit/${book.id}`);
+        // setBookToEdit({nameBook: book.nameBook, quantity: book.quantity, category: book.category, id: book.id});
+        // setShowEditModal(true);
+        navigate(`/edit/${book.id}`);
     };
     const handleConfirmEdit = async (values) => {
         const isDuplicate = books.some(book => book.nameBook === values.nameBook && book.id !== bookToEdit.id);
@@ -53,6 +66,7 @@ function ListBooks() {
             const response = await axios.put(`http://localhost:3010/book/${bookToEdit.id}`, values);
             setBooks(books.map(book => book.id === bookToEdit.id ? response.data : book));
             toast.success('chỉnh sửa thành công thành công.');
+            navigate("/list");
         } catch (error) {
             console.log(error);
         } finally {
@@ -76,27 +90,65 @@ function ListBooks() {
     return (
         <>
 
+
             <div className="container mt-5">
                 <h2 className="text-center mb-4">Book List</h2>
 
-
+                <Formik
+                    initialValues={{search: ""}}
+                    onSubmit={(values) => {
+                        setSearchTerm(values.search); // Cập nhật searchTerm
+                        setSearchCategories(values.search2);
+                    }}
+                >
+                    {() => (
+                        <FormikForm className="mb-3">
+                            <Form.Group className="mb-3" controlId="formSearch">
+                                <Form.Label>Tìm kiếm sách</Form.Label>
+                                <Field
+                                    as={Form.Control}
+                                    type="text"
+                                    placeholder="Nhập tên sách"
+                                    name="search"
+                                />
+                            </Form.Group>
+                            <Form.Group className="mb-3" controlId="formSearch">
+                                <Form.Label>category</Form.Label>
+                                <Field
+                                    as={Form.Control}
+                                    type="text"
+                                    placeholder="Nhập loại sách"
+                                    name="search2"
+                                />
+                            </Form.Group>
+                            <Button variant="primary" type="submit">
+                                Tìm
+                            </Button>
+                        </FormikForm>
+                    )}
+                </Formik>
                 <Table striped bordered hover>
                     <thead>
                     <tr>
                         <th>#</th>
                         <th>Title</th>
                         <th>Quantity</th>
+                        <th>Category</th>
                         <th>Actions</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {books.map((book, index) => (
+                    {books.filter(book => book.nameBook.toLowerCase().includes(searchTerm.toLowerCase()) &&
+                        book.category.toLowerCase().includes(searchCategories.toLowerCase())
+                    ).map((book, index) => (
                         <tr key={book.id}>
                             <td>{index + 1}</td>
                             <td>{book.nameBook}</td>
                             <td>{book.quantity}</td>
+                            <td>{book.category}</td>
                             <td>
-                                <Button variant="primary" size="sm" className="me-2" onClick={() => handleEditClick(book)}>
+                                <Button variant="primary" size="sm" className="me-2"
+                                        onClick={() => handleEditClick(book)}>
                                     Edit
                                 </Button>
                                 <Button variant="danger" size="sm" onClick={() => handleDeleteClick(book)}>
@@ -128,7 +180,6 @@ function ListBooks() {
                     <Modal.Body>
                         <Formik
                             validationSchema={validationSchema}
-
                             initialValues={bookToEdit}
                             onSubmit={handleConfirmEdit}
                         >
@@ -145,7 +196,7 @@ function ListBooks() {
                                         <ErrorMessage
                                             name="nameBook"
                                             component="div"
-                                            className="error-message"
+                                            className="error-message text-danger"
                                         />
                                     </Form.Group>
 
@@ -160,11 +211,22 @@ function ListBooks() {
                                         <ErrorMessage
                                             name="quantity"
                                             component="div"
-                                            className="error-message"
+                                            className="error-message text-danger"
                                         />
 
                                     </Form.Group>
-
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Thể Loại</Form.Label>
+                                        <Field as="select" name="category" className="form-control">
+                                            <option value="">Chọn thể loại</option>
+                                            {categories.map((category) => (
+                                                <option key={category.id} value={category.name}>
+                                                    {category.name}
+                                                </option>
+                                            ))}
+                                        </Field>
+                                        <ErrorMessage name="categoryId" component="div" className="error-message text-danger"/>
+                                    </Form.Group>
                                     <Modal.Footer>
                                         <Button variant="secondary" onClick={() => setShowEditModal(false)}>
                                             Hủy
@@ -179,7 +241,8 @@ function ListBooks() {
                     </Modal.Body>
 
                 </Modal>
-            </div></>
+            </div>
+        </>
 
     );
 }

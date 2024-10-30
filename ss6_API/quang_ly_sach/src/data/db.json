@@ -1,24 +1,36 @@
 {
   "book": [
     {
-      "nameBook": "jjjj",
-      "quantity": 33,
-      "id": 9
-    },
-    {
-      "nameBook": "324",
-      "quantity": 2,
+      "nameBook": "không sao",
+      "quantity": 12,
+      "category": "lãng mạng",
       "id": 10
     },
     {
-      "nameBook": "xdf",
-      "quantity": 2,
+      "nameBook": "ging",
+      "quantity": 12,
+      "category": "giật gân",
       "id": 11
     },
     {
-      "nameBook": "okop",
-      "quantity": 222,
-      "id": 12
+      "nameBook": "khong sao cả con cặc",
+      "quantity": "3",
+      "category": "giật gân",
+      "id": 13
+    }
+  ],
+  "category": [
+    {
+      "name": "kinh dị",
+      "id": 1
+    },
+    {
+      "name": "lãng mạng",
+      "id": 2
+    },
+    {
+      "name": "giật gân",
+      "id": 3
     }
   ]
 }
